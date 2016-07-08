@@ -60,9 +60,47 @@ angular.module('sb.util').directive('storyStatusLabel',
                     }
                 }
 
+                function progressBarColor(key) {
+                    switch (key) {
+                        case 'invalid':
+                            return "red";
+                        default:
+                            return "blue";
+                    }
+                }
+
+                function calculateProgress(total, count) {
+                    return (count*100)/total;
+                }
+
+                function calculatePercentage() {
+                    if (!$scope.story) {
+                        return null;
+                    } else {
+                        console.log($scope.story)
+                        var total = 0;
+                        var progress = []
+                        for (var i = 0; i < $scope.story.task_statuses.length; i++) {
+                            if ($scope.story.task_statuses[i].key != 'invalid') {
+                                total += $scope.story.task_statuses[i].count
+                            }
+                        }
+                        for (var i = 0; i < $scope.story.task_statuses.length; i++) {
+                            progress.push({key: $scope.story.task_statuses[i].key,
+                                           progress: calculateProgress(total, $scope.story.task_statuses[i].count),
+                                           color: progressBarColor($scope.story.task_statuses[i].key),
+                                          })
+                        }
+                        console.log(progress)
+                        console.log(total)
+                        return $scope.story.status;
+                    }
+               }
+
+
                 var unwatch = $scope.$watch(getStoryStatus, updateStoryLabel);
                 $scope.$on('$destroy', unwatch);
-
+                calculatePercentage();
                 updateStoryLabel();
             }
         };
