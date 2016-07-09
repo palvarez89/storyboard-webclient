@@ -62,10 +62,16 @@ angular.module('sb.util').directive('storyStatusLabel',
 
                 function progressBarColor(key) {
                     switch (key) {
+                        case 'review':
+                            return "progress-bar-warning";
+                        case 'inprogress':
+                            return "progress-bar-info";
                         case 'invalid':
-                            return "red";
+                            return "progress-bar-danger";
+                        case 'merged':
+                            return "progress-bar-success";
                         default:
-                            return "blue";
+                            return "hidden";
                     }
                 }
 
@@ -73,33 +79,49 @@ angular.module('sb.util').directive('storyStatusLabel',
                     return (count*100)/total;
                 }
 
+                function countValidTasks(task_statuses) {
+                    var total = 0;
+                    for (var i = 0; i < task_statuses.length; i++) {
+                        if (task_statuses[i].key != 'invalid') {
+                            total += task_statuses[i].count;
+                        }
+                    }
+                    return total;
+                }
                 function calculatePercentage() {
                     if (!$scope.story) {
                         return null;
+                    }
+
+                    var progress = [];
+                    var total = countValidTasks($scope.story.task_statuses);
+                    var story_status = getStoryStatus();
+
+                    if (story_status == 'invalid' || story_status == 'merged') {
+                         progress.push({key: story_status,
+                                        progress: 100,
+                                        color: progressBarColor(story_status)
+                                       })
                     } else {
+                    
                         console.log($scope.story)
-                        var total = 0;
-                        var progress = []
-                        for (var i = 0; i < $scope.story.task_statuses.length; i++) {
-                            if ($scope.story.task_statuses[i].key != 'invalid') {
-                                total += $scope.story.task_statuses[i].count
-                            }
-                        }
+
                         for (var i = 0; i < $scope.story.task_statuses.length; i++) {
                             progress.push({key: $scope.story.task_statuses[i].key,
                                            progress: calculateProgress(total, $scope.story.task_statuses[i].count),
-                                           color: progressBarColor($scope.story.task_statuses[i].key),
+                                           color: progressBarColor($scope.story.task_statuses[i].key)
                                           })
                         }
-                        console.log(progress)
-                        console.log(total)
-                        return $scope.story.status;
                     }
-               }
+                    console.log(progress)
+                    console.log(total)
+                    $scope.progress = progress;
+                    
+                }
 
 
-                var unwatch = $scope.$watch(getStoryStatus, updateStoryLabel);
-                $scope.$on('$destroy', unwatch);
+                //var unwatch = $scope.$watch(getStoryStatus, pdateStoryLabel);
+                //$scope.$on('$destroy', unwatch);
                 calculatePercentage();
                 updateStoryLabel();
             }

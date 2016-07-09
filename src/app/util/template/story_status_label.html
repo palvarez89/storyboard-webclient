@@ -1,3 +1,7 @@
-<span class="label {{labelStyle}}" ng-show="!!story">
-    {{story.status | capitalize}}
+<span  ng-show="!!story">
+    <div class="progress">
+        <div ng-repeat="bar in progress" class="progress-bar progress-bar-striped {{bar.color}}"  shit="{{bar}}" style="width:{{bar.progress}}%"></div>
+        <span class="progress-value">Active</span>    
+    </div>
 </span>
+
